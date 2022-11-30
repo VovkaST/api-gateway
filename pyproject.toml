@@ -1,0 +1,6 @@
+[tool.black]
+profile = "black"
+py_version = 310
+skip_gitignore = true
+line_length = 79
+sections = "FUTURE,STDLIB,FIRSTPARTY,THIRDPARTY,LOCALFOLDER"
