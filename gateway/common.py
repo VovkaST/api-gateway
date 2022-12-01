@@ -20,7 +20,7 @@ class Singletone(type):
         return cls._instances[cls]
 
 
-def router(method, path: str, service_url: str, data_key: str = None):
+def router(method, path: str, service_url: str = None, data_key: str = None):
     app_method = method(path)
 
     def wrapper(endpoint):
@@ -29,15 +29,15 @@ def router(method, path: str, service_url: str, data_key: str = None):
         async def decorator(request: Request, response: Response, **kwargs):
             path = request.scope["path"]
             request_method = request.scope["method"].lower()
-            url = f"{service_url}{path}"
             data = kwargs.get(data_key)
             data = data.dict() if data else {}
             response = await send_request_to_queue(
                 config=request.app.config,
                 message={
-                    "url": url,
+                    "path": path,
                     "method": request_method,
                     "data": data,
+                    "headers": {},
                 },
             )
             return response
@@ -56,12 +56,12 @@ class EnvTag(BaseTag):
         param=None,
         *args,
         **kwargs,
-    ):
+    ) -> str:
         result = os.environ.get(param, "")
         return _prefix + result + _suffix
 
 
-def load_config(config_path: Path):
+def load_config(config_path: Path) -> dict:
     tag_registry.require("env_tag")
     env_path = f"{config_path.absolute().parent}/.env"
     load_dotenv(dotenv_path=env_path)
@@ -69,6 +69,6 @@ def load_config(config_path: Path):
         return yaml.load(f, Loader=yaml.Loader)
 
 
-def get_config_path(file_name: str):
+def get_config_path(file_name: str) -> Path:
     current_dir = Path(__file__).absolute().parent
     return current_dir / "config" / file_name

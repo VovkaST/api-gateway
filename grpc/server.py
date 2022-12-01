@@ -1,14 +1,10 @@
 import asyncio
-import json
 
 from aio_pika import connect_robust
 from aio_pika.patterns import RPC
 
 from grpc.common import get_config_path, load_config
-
-
-async def resolve(*args, **kwargs) -> str:
-    return json.dumps({"args": args, "kwargs": kwargs})
+from grpc.resolver import resolve
 
 
 async def server() -> None:

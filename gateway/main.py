@@ -15,8 +15,13 @@ async def get_main_page(request: Request, response: Response):
     pass
 
 
-@router(method=app.get, path="/cases", service_url=CASES_SERVICE_URL)
+@router(method=app.get, path="/cases/list")
 async def get_all_cases(request: Request, response: Response):
+    pass
+
+
+@router(method=app.get, path="/cases/{case_id}")
+async def get_case(request: Request, response: Response, case_id: int):
     pass
 
 

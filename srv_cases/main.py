@@ -5,9 +5,6 @@ from starlette.requests import Request
 
 from srv_cases.schemas import CaseCreateSchema, CaseViewSchema
 
-app = FastAPI()
-
-
 cases = [
     {
         "id": 1,
@@ -18,11 +15,19 @@ cases = [
         "title": "Case 2",
     },
 ]
+app = FastAPI()
 
 
-@app.get("/cases")
+@app.get("/cases/list")
 async def get_all_cases(request: Request):
     return cases
+
+
+@app.get("/cases/{case_id}")
+async def get_case(request: Request, case_id: int):
+    filtered = list(filter(lambda c: c["id"] == case_id, cases))
+    if filtered:
+        return filtered[0]
 
 
 @app.post("/cases")
