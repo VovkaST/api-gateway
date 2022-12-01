@@ -1,3 +1,7 @@
 aiohttp==3.8.3
+aio-pika==8.2.5
 fastapi==0.88.0
+path==16.5.0
+pyyaml-tags==1.0.4
+six==1.16.0
 uvicorn==0.20.0
