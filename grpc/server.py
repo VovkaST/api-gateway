@@ -3,8 +3,8 @@ import asyncio
 from aio_pika import connect_robust
 from aio_pika.patterns import RPC
 
-from grpc.common import get_config_path, load_config
-from grpc.resolver import resolve
+from common import get_config_path, load_config
+from resolver import resolve
 
 
 async def server() -> None:
