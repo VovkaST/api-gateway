@@ -1,3 +1,4 @@
+from asyncio import sleep
 from random import randint
 
 from fastapi import FastAPI
@@ -20,6 +21,7 @@ app = FastAPI()
 
 @app.get("/cases/list")
 async def get_all_cases(request: Request):
+    await sleep(randint(5, 60))
     return cases
 
 
