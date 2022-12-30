@@ -73,9 +73,7 @@ async def update_client(request: Request, client_id: int, data: ClientSchema):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
             )
-        await session.execute(
-            update(Client).where(Client.id == client_id).values(**data.dict())
-        )
+        await ClientQueryset.update(session, client_id, **data.dict())
 
     async with sm() as session:
         client = await ClientQueryset.get_by_id(session, client_id)
@@ -94,7 +92,7 @@ async def update_client(request: Request, client_id: int):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
             )
-        await session.execute(delete(Client).where(Client.id == client_id))
+        await ClientQueryset.delete(session, client_id)
 
 
 app.include_router(router)
