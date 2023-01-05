@@ -84,7 +84,7 @@ async def update_client(request: Request, client_id: int, data: ClientSchema):
     "/{client_id}",
     status_code=status.HTTP_202_ACCEPTED,
 )
-async def update_client(request: Request, client_id: int):
+async def delete_client(request: Request, client_id: int):
     sm = request.app.state.session_maker
     async with sm.begin() as session:
         client = await ClientQueryset.get_by_id(session, client_id)
