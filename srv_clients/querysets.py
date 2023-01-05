@@ -16,9 +16,9 @@ class ClientQueryset:
     @classmethod
     async def update(cls, session: AsyncSession, id_: int, **kwargs) -> None:
         await session.execute(
-            update(Client).where(Client.id == id_).values(**kwargs)
+            update(cls.model).where(cls.model.id == id_).values(**kwargs)
         )
 
     @classmethod
     async def delete(cls, session: AsyncSession, id_: int):
-        await session.execute(delete(Client).where(Client.id == id_))
+        await session.execute(delete(cls.model).where(cls.model.id == id_))
