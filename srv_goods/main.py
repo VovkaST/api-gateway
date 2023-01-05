@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.params import Query
 from starlette import status
 from starlette.requests import Request
@@ -8,20 +8,15 @@ from starlette.requests import Request
 from srv_goods.database import Base, engine
 from srv_goods.database import sm as session_maker
 from srv_goods.querysets import CategoryQueryset, GoodQueryset
-from srv_goods.schemas import (
-    CategoryItemViewSchema,
-    GoodSchema,
-    GoodViewSchema,
-)
+from srv_goods.schemas import (CategoryItemViewSchema, GoodSchema,
+                               GoodViewSchema)
 
 app = FastAPI()
 app.state.engine = engine
 app.state.session_maker = session_maker
 
-router = APIRouter(prefix="/goods")
 
-
-@router.on_event("startup")
+@app.on_event("startup")
 async def on_startup():
     async with app.state.engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -34,14 +29,14 @@ async def on_shutdown():
     await app.state.engine.dispose()
 
 
-@router.get("/categories", response_model=List[CategoryItemViewSchema])
+@app.get("/categories", response_model=List[CategoryItemViewSchema])
 async def get_good_categories(request: Request):
     async with request.app.state.session_maker() as session:
         rows = await CategoryQueryset.get_multiple(session)
         return [row.to_dict() for row in rows.all()]
 
 
-@router.get("/list", response_model=List[GoodViewSchema])
+@app.get("/list", response_model=List[GoodViewSchema])
 async def get_filtered_goods(
     request: Request,
     name: str = Query(None, description="Наименование товара"),
@@ -65,7 +60,7 @@ async def get_filtered_goods(
         return [row.to_dict() for row in rows.all()]
 
 
-@router.get("/{good_id}", response_model=GoodViewSchema)
+@app.get("/{good_id}", response_model=GoodViewSchema)
 async def get_good(request: Request, good_id: int):
     async with request.app.state.session_maker() as session:
         good = await GoodQueryset.get_by_id(session, good_id)
@@ -76,7 +71,7 @@ async def get_good(request: Request, good_id: int):
         return good.to_dict()
 
 
-@router.post(
+@app.post(
     "", response_model=GoodViewSchema, status_code=status.HTTP_201_CREATED
 )
 async def create_good(request: Request, data: GoodSchema):
@@ -88,7 +83,7 @@ async def create_good(request: Request, data: GoodSchema):
         return good.to_dict()
 
 
-@router.patch(
+@app.patch(
     "/{good_id}",
     response_model=GoodViewSchema,
     status_code=status.HTTP_202_ACCEPTED,
@@ -108,7 +103,7 @@ async def update_good(request: Request, good_id: int, data: GoodSchema):
         return good.to_dict()
 
 
-@router.delete(
+@app.delete(
     "/{good_id}",
     status_code=status.HTTP_202_ACCEPTED,
 )
@@ -121,6 +116,3 @@ async def delete_good(request: Request, good_id: int):
                 status_code=status.HTTP_404_NOT_FOUND, detail="Good not found"
             )
         await GoodQueryset.delete(session, good_id)
-
-
-app.include_router(router)

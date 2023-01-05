@@ -1,7 +1,7 @@
 from typing import List
 
-from fastapi import APIRouter, FastAPI, HTTPException
-from sqlalchemy import delete, select, update
+from fastapi import FastAPI, HTTPException
+from sqlalchemy import select
 from starlette import status
 from starlette.requests import Request
 
@@ -15,10 +15,8 @@ app = FastAPI()
 app.state.engine = engine
 app.state.session_maker = session_maker
 
-router = APIRouter(prefix="/clients")
 
-
-@router.on_event("startup")
+@app.on_event("startup")
 async def on_startup():
     async with app.state.engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -31,21 +29,21 @@ async def on_shutdown():
     await app.state.engine.dispose()
 
 
-@router.get("/list", response_model=List[ClientViewSchema])
+@app.get("/list", response_model=List[ClientViewSchema])
 async def get_all_clients(request: Request):
     async with request.app.state.session_maker() as session:
         rows = await session.scalars(select(Client))
         return [row.__dict__ for row in rows.all()]
 
 
-@router.get("/{client_id}")
+@app.get("/{client_id}")
 async def get_client(request: Request, client_id: int):
     async with request.app.state.session_maker() as session:
         client = await ClientQueryset.get_by_id(session, client_id)
         return client.__dict__
 
 
-@router.post(
+@app.post(
     "", response_model=ClientViewSchema, status_code=status.HTTP_201_CREATED
 )
 async def create_client(request: Request, data: ClientSchema):
@@ -60,7 +58,7 @@ async def create_client(request: Request, data: ClientSchema):
         return client.__dict__
 
 
-@router.patch(
+@app.patch(
     "/{client_id}",
     response_model=ClientViewSchema,
     status_code=status.HTTP_202_ACCEPTED,
@@ -80,7 +78,7 @@ async def update_client(request: Request, client_id: int, data: ClientSchema):
         return client.__dict__
 
 
-@router.delete(
+@app.delete(
     "/{client_id}",
     status_code=status.HTTP_202_ACCEPTED,
 )
@@ -93,6 +91,3 @@ async def delete_client(request: Request, client_id: int):
                 status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
             )
         await ClientQueryset.delete(session, client_id)
-
-
-app.include_router(router)
