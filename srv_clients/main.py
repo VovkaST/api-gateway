@@ -63,7 +63,7 @@ async def create_client(request: Request, data: ClientSchema):
 @router.patch(
     "/{client_id}",
     response_model=ClientViewSchema,
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def update_client(request: Request, client_id: int, data: ClientSchema):
     sm = request.app.state.session_maker
