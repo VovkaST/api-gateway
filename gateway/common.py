@@ -27,20 +27,23 @@ def router(
         @app_method
         @wraps(endpoint)
         async def decorator(request: Request, **kwargs):
-            path = request.scope["path"]
             request_method = request.scope["method"].lower()
             data = kwargs.get(data_key)
             data = data.dict() if data else {}
             response_data, response_status_code = await send_request_to_queue(
                 config=request.app.config,
                 message={
-                    "path": path,
+                    "path": request.scope["path"],
                     "method": request_method,
                     "data": data,
                     "headers": {},
                 },
             )
-            return response
+            if response_status_code >= status.HTTP_400_BAD_REQUEST:
+                raise HTTPException(
+                    status_code=response_status_code, detail=response_data
+                )
+            return response_data
 
     return wrapper
 

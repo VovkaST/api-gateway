@@ -10,7 +10,7 @@ SERVICE_MAP = {
 
 async def resolve(
     path: str, method: str, data: dict = None, headers: dict = None
-) -> dict:
+) -> Tuple[dict, int]:
     _, service_name, *_ = path.split("/")
     service_host = SERVICE_MAP[service_name]
     url = f"http://{service_host}{path}"
