@@ -1,13 +1,10 @@
 from typing import List
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Response
 from fastapi.params import Query
 from gateway.common import router
-from gateway.srv_goods.schemas import (
-    CategoryItemViewSchema,
-    GoodSchema,
-    GoodViewSchema,
-)
+from gateway.srv_goods.schemas import (CategoryItemViewSchema, GoodSchema,
+                                       GoodViewSchema)
 from starlette import status
 
 goods_router = APIRouter(prefix="/goods")
@@ -18,7 +15,7 @@ goods_router = APIRouter(prefix="/goods")
     path="/categories",
     response_model=List[CategoryItemViewSchema],
 )
-async def get_good_categories(request: Request):
+async def get_good_categories(request: Request, response: Response):
     pass
 
 
@@ -27,6 +24,7 @@ async def get_good_categories(request: Request):
 )
 async def get_filtered_goods(
     request: Request,
+    response: Response,
     name: str = Query(None, description="Наименование товара"),
     category_id: int = Query(None, description="Категория"),
     limit: int = Query(
@@ -43,7 +41,7 @@ async def get_filtered_goods(
 @router(
     method=goods_router.get, path="/{good_id}", response_model=GoodViewSchema
 )
-async def get_good(request: Request, good_id: int):
+async def get_good(request: Request, response: Response, good_id: int):
     pass
 
 
@@ -54,7 +52,7 @@ async def get_good(request: Request, good_id: int):
     status_code=status.HTTP_201_CREATED,
     data_key="data",
 )
-async def create_good(request: Request, data: GoodSchema):
+async def create_good(request: Request, response: Response, data: GoodSchema):
     pass
 
 
@@ -65,7 +63,9 @@ async def create_good(request: Request, data: GoodSchema):
     status_code=status.HTTP_202_ACCEPTED,
     data_key="data",
 )
-async def update_good(request: Request, good_id: int, data: GoodSchema):
+async def update_good(
+    request: Request, response: Response, good_id: int, data: GoodSchema
+):
     pass
 
 
@@ -74,5 +74,5 @@ async def update_good(request: Request, good_id: int, data: GoodSchema):
     path="/{good_id}",
     status_code=status.HTTP_202_ACCEPTED,
 )
-async def delete_good(request: Request, good_id: int):
+async def delete_good(request: Request, response: Response, good_id: int):
     pass

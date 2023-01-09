@@ -5,7 +5,7 @@ from typing import Any, Optional
 
 import yaml
 from dotenv import load_dotenv
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Request, Response
 from starlette import status
 from yaml_tags import BaseTag, tag_registry
 
@@ -19,6 +19,16 @@ def router(
     status_code: Optional[int] = status.HTTP_200_OK,
     response_model: Optional[Any] = None,
 ):
+    """
+    Обертка функции эндпоинта, реализующая обращение к RPC-серверу.
+
+    :param method:
+    :param path:
+    :param data_key:
+    :param status_code:
+    :param response_model:
+    :return:
+    """
     app_method = method(
         path, status_code=status_code, response_model=response_model
     )
@@ -26,7 +36,7 @@ def router(
     def wrapper(endpoint):
         @app_method
         @wraps(endpoint)
-        async def decorator(request: Request, **kwargs):
+        async def decorator(request: Request, response: Response, **kwargs):
             request_method = request.scope["method"].lower()
             data = kwargs.get(data_key)
             data = data.dict() if data else {}
@@ -44,6 +54,7 @@ def router(
                 raise HTTPException(
                     status_code=response_status_code, detail=response_data
                 )
+            response.status_code = response_status_code
             return response_data
 
     return wrapper
