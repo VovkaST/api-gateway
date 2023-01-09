@@ -33,8 +33,9 @@ def router(
             response_data, response_status_code = await send_request_to_queue(
                 config=request.app.config,
                 message={
-                    "path": request.scope["path"],
                     "method": request_method,
+                    "path": request.scope["path"],
+                    "params": dict(request.query_params),
                     "data": data,
                     "headers": {},
                 },

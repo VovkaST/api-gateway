@@ -57,8 +57,10 @@ async def get_filtered_goods(
             session,
             limit=limit,
             offset=offset,
-            name=name,
-            category_id=category_id,
+            filters={
+                "name": name,
+                "category_id": category_id,
+            },
         )
         return [row.to_dict() for row in rows.all()]
 

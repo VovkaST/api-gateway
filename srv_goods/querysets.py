@@ -28,8 +28,9 @@ class BaseQueryset:
         session: AsyncSession,
         limit: int = None,
         offset: int = None,
-        *filters,
+        filters: List = None,
     ):
+        filters = filters or list()
         return await session.scalars(
             select(cls.model).where(*filters).limit(limit).offset(offset)
         )
@@ -54,7 +55,7 @@ class GoodQueryset(BaseQueryset):
         session: AsyncSession,
         limit: int = None,
         offset: int = None,
-        **filters,
+        filters: dict = None,
     ):
         where = list()
         if name := filters.get("name"):
@@ -62,7 +63,7 @@ class GoodQueryset(BaseQueryset):
         if category_id := filters.get("category_id"):
             where.append(cls.model.category_id == category_id)
         return await super().get_multiple(
-            session=session, limit=limit, offset=offset, *where
+            session=session, limit=limit, offset=offset, filters=where
         )
 
 
