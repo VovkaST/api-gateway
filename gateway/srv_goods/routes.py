@@ -3,8 +3,11 @@ from typing import List
 from fastapi import APIRouter, Request, Response
 from fastapi.params import Query
 from gateway.common import router
-from gateway.srv_goods.schemas import (CategoryItemViewSchema, GoodSchema,
-                                       GoodViewSchema)
+from gateway.srv_goods.schemas import (
+    CategoryItemViewSchema,
+    GoodSchema,
+    GoodViewSchema,
+)
 from starlette import status
 
 goods_router = APIRouter(prefix="/goods")
