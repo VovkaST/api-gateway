@@ -2,7 +2,10 @@ from typing import Tuple
 
 import aiohttp
 
-SERVICE_MAP = {"cases": "0.0.0.0:8001"}
+SERVICE_MAP = {
+    "clients": "0.0.0.0:8001",
+    "goods": "0.0.0.0:8002",
+}
 
 
 async def resolve(
