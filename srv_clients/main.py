@@ -36,7 +36,7 @@ async def get_all_clients(request: Request):
         return [row.__dict__ for row in rows.all()]
 
 
-@app.get("/{client_id}")
+@app.get("/{client_id}", response_model=ClientViewSchema)
 async def get_client(request: Request, client_id: int):
     async with request.app.state.session_maker() as session:
         client = await ClientQueryset.get_by_id(session, client_id)
