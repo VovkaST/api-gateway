@@ -5,8 +5,8 @@ from typing import Any, Optional
 
 import yaml
 from dotenv import load_dotenv
+from fastapi import HTTPException, Request
 from starlette import status
-from starlette.requests import Request
 from yaml_tags import BaseTag, tag_registry
 
 from gateway.rabbit import send_request_to_queue
