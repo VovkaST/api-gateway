@@ -8,8 +8,11 @@ from starlette.requests import Request
 from srv_goods.database import Base, engine
 from srv_goods.database import sm as session_maker
 from srv_goods.querysets import CategoryQueryset, GoodQueryset
-from srv_goods.schemas import (CategoryItemViewSchema, GoodSchema,
-                               GoodViewSchema)
+from srv_goods.schemas import (
+    CategoryItemViewSchema,
+    GoodSchema,
+    GoodViewSchema,
+)
 
 app = FastAPI()
 app.state.engine = engine
@@ -29,14 +32,14 @@ async def on_shutdown():
     await app.state.engine.dispose()
 
 
-@app.get("/categories", response_model=List[CategoryItemViewSchema])
+@app.get("/goods/categories", response_model=List[CategoryItemViewSchema])
 async def get_good_categories(request: Request):
     async with request.app.state.session_maker() as session:
         rows = await CategoryQueryset.get_multiple(session)
         return [row.to_dict() for row in rows.all()]
 
 
-@app.get("/list", response_model=List[GoodViewSchema])
+@app.get("/goods/list", response_model=List[GoodViewSchema])
 async def get_filtered_goods(
     request: Request,
     name: str = Query(None, description="Наименование товара"),
@@ -60,7 +63,7 @@ async def get_filtered_goods(
         return [row.to_dict() for row in rows.all()]
 
 
-@app.get("/{good_id}", response_model=GoodViewSchema)
+@app.get("/goods/{good_id}", response_model=GoodViewSchema)
 async def get_good(request: Request, good_id: int):
     async with request.app.state.session_maker() as session:
         good = await GoodQueryset.get_by_id(session, good_id)
@@ -72,7 +75,9 @@ async def get_good(request: Request, good_id: int):
 
 
 @app.post(
-    "", response_model=GoodViewSchema, status_code=status.HTTP_201_CREATED
+    "/goods",
+    response_model=GoodViewSchema,
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_good(request: Request, data: GoodSchema):
     sm = request.app.state.session_maker
@@ -84,7 +89,7 @@ async def create_good(request: Request, data: GoodSchema):
 
 
 @app.patch(
-    "/{good_id}",
+    "/goods/{good_id}",
     response_model=GoodViewSchema,
     status_code=status.HTTP_202_ACCEPTED,
 )
@@ -104,7 +109,7 @@ async def update_good(request: Request, good_id: int, data: GoodSchema):
 
 
 @app.delete(
-    "/{good_id}",
+    "/goods/{good_id}",
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def delete_good(request: Request, good_id: int):
