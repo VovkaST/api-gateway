@@ -9,5 +9,5 @@ async def send_request_to_queue(config: dict, message: dict):
     async with connection:
         channel = await connection.channel()
         rpc = await RPC.create(channel)
-        result = await rpc.proxy.resolve(**message)
-        return result
+        result, status_code = await rpc.proxy.resolve(**message)
+        return result, status_code

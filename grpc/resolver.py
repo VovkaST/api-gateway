@@ -15,7 +15,7 @@ async def resolve(
     service_host = SERVICE_MAP[service_name]
     url = f"http://{service_host}{path}"
     response, status_code = await make_request(url, method, data, headers)
-    return response
+    return response, status_code
 
 
 async def make_request(

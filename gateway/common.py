@@ -31,7 +31,7 @@ def router(
             request_method = request.scope["method"].lower()
             data = kwargs.get(data_key)
             data = data.dict() if data else {}
-            response = await send_request_to_queue(
+            response_data, response_status_code = await send_request_to_queue(
                 config=request.app.config,
                 message={
                     "path": path,
