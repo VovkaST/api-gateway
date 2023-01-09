@@ -1,37 +1,10 @@
 from fastapi import FastAPI
-from starlette.requests import Request
-from starlette.responses import Response
 
-from common import get_config_path, load_config, router
-from gateway.const import CASES_SERVICE_URL
-from gateway.schemas.cases import CaseCreateSchema
+from common import get_config_path, load_config
+from gateway.srv_clients.routes import clients_router
+from gateway.srv_goods.routes import goods_router
 
 app = FastAPI()
 app.config = load_config(get_config_path("local.yaml"))
-
-
-@router(method=app.get, path="/", service_url=CASES_SERVICE_URL)
-async def get_main_page(request: Request, response: Response):
-    pass
-
-
-@router(method=app.get, path="/cases/list")
-async def get_all_cases(request: Request, response: Response):
-    pass
-
-
-@router(method=app.get, path="/cases/{case_id}")
-async def get_case(request: Request, response: Response, case_id: int):
-    pass
-
-
-@router(
-    method=app.post,
-    path="/cases",
-    service_url=CASES_SERVICE_URL,
-    data_key="data",
-)
-async def create_case(
-    request: Request, response: Response, data: CaseCreateSchema
-):
-    pass
+app.include_router(clients_router)
+app.include_router(goods_router)

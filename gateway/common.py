@@ -1,32 +1,32 @@
 import os
 from functools import wraps
 from pathlib import Path
+from typing import Any, Optional
 
 import yaml
 from dotenv import load_dotenv
+from starlette import status
 from starlette.requests import Request
-from starlette.responses import Response
 from yaml_tags import BaseTag, tag_registry
 
 from gateway.rabbit import send_request_to_queue
 
 
-class Singletone(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
-def router(method, path: str, service_url: str = None, data_key: str = None):
-    app_method = method(path)
+def router(
+    method,
+    path: str,
+    data_key: Optional[str] = None,
+    status_code: Optional[int] = status.HTTP_200_OK,
+    response_model: Optional[Any] = None,
+):
+    app_method = method(
+        path, status_code=status_code, response_model=response_model
+    )
 
     def wrapper(endpoint):
         @app_method
         @wraps(endpoint)
-        async def decorator(request: Request, response: Response, **kwargs):
+        async def decorator(request: Request, **kwargs):
             path = request.scope["path"]
             request_method = request.scope["method"].lower()
             data = kwargs.get(data_key)
@@ -58,7 +58,7 @@ class EnvTag(BaseTag):
         **kwargs,
     ) -> str:
         result = os.environ.get(param, "")
-        return _prefix + result + _suffix
+        return f"{_prefix}{result}{_suffix}"
 
 
 def load_config(config_path: Path) -> dict:
