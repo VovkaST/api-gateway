@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, Text
-from sqlalchemy.orm import DeclarativeMeta, backref, relationship
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.collections import InstrumentedList
 
 from srv_goods.database import Base
