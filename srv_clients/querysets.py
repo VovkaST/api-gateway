@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,7 +29,7 @@ class ClientQueryset:
         limit: int = None,
         offset: int = None,
         **filters,
-    ):
+    ) -> List[Client]:
         where = list()
         if surname := filters.get("surname"):
             where.append(cls.model.surname == surname)
@@ -46,5 +48,5 @@ class ClientQueryset:
         )
 
     @classmethod
-    async def delete(cls, session: AsyncSession, id_: int):
+    async def delete(cls, session: AsyncSession, id_: int) -> None:
         await session.execute(delete(cls.model).where(cls.model.id == id_))
