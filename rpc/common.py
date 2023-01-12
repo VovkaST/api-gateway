@@ -19,7 +19,7 @@ class EnvTag(BaseTag):
         **kwargs,
     ):
         result = os.environ.get(param, "")
-        return _prefix + result + _suffix
+        return f"{_prefix}{result}{_suffix}"
 
 
 def load_config(config_path: Path) -> dict:
