@@ -12,6 +12,35 @@ from yaml_tags import BaseTag, tag_registry
 from gateway.rabbit import send_request_to_queue
 
 
+@tag_registry.register("env_tag")
+class EnvTag(BaseTag):
+    def _from_yaml(
+        self,
+        _loader,
+        _work_dir,
+        _prefix,
+        _suffix,
+        param=None,
+        *args,
+        **kwargs,
+    ) -> str:
+        result = os.environ.get(param, "")
+        return f"{_prefix}{result}{_suffix}"
+
+
+def load_config(config_path: Path) -> dict:
+    tag_registry.require("env_tag")
+    env_path = f"{config_path.absolute().parent}/.env"
+    load_dotenv(dotenv_path=env_path)
+    with open(config_path) as f:
+        return yaml.load(f, Loader=yaml.Loader)
+
+
+def get_config_path(file_name: str) -> Path:
+    current_dir = Path(__file__).absolute().parent
+    return current_dir / "config" / file_name
+
+
 def router(
     method,
     path: str,
@@ -22,12 +51,11 @@ def router(
     """
     Обертка функции эндпоинта, реализующая обращение к RPC-серверу.
 
-    :param method:
-    :param path:
-    :param data_key:
-    :param status_code:
-    :param response_model:
-    :return:
+    :param method: Вызываемый объект (функция) реализующая тот или иной метод http-запроса.
+    :param path: Адрес эндпоинта.
+    :param data_key: Имя ключа, в котором передаются данные на эндпоинт.
+    :param status_code: Ожидаемый код ответа сервера.
+    :param response_model: Модель данных для преобразования ответа.
     """
     app_method = method(
         path, status_code=status_code, response_model=response_model
@@ -58,32 +86,3 @@ def router(
             return response_data
 
     return wrapper
-
-
-@tag_registry.register("env_tag")
-class EnvTag(BaseTag):
-    def _from_yaml(
-        self,
-        _loader,
-        _work_dir,
-        _prefix,
-        _suffix,
-        param=None,
-        *args,
-        **kwargs,
-    ) -> str:
-        result = os.environ.get(param, "")
-        return f"{_prefix}{result}{_suffix}"
-
-
-def load_config(config_path: Path) -> dict:
-    tag_registry.require("env_tag")
-    env_path = f"{config_path.absolute().parent}/.env"
-    load_dotenv(dotenv_path=env_path)
-    with open(config_path) as f:
-        return yaml.load(f, Loader=yaml.Loader)
-
-
-def get_config_path(file_name: str) -> Path:
-    current_dir = Path(__file__).absolute().parent
-    return current_dir / "config" / file_name

@@ -71,6 +71,11 @@ async def create_client(request: Request, data: ClientSchema):
 async def get_client(request: Request, client_id: int):
     async with request.app.state.session_maker() as session:
         client = await ClientQueryset.get_by_id(session, client_id)
+        if not client:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Client not found",
+            )
         return client.to_dict()
 
 
@@ -85,7 +90,8 @@ async def update_client(request: Request, client_id: int, data: ClientSchema):
         client = await ClientQueryset.get_by_id(session, client_id)
         if not client:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Client not found",
             )
         await ClientQueryset.update(session, client_id, **data.dict())
 

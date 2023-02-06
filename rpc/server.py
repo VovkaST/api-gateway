@@ -13,14 +13,15 @@ async def server() -> None:
 
     connection = await connect_robust(rmq["url"])
 
-    channel = await connection.channel()
-    rpc = await RPC.create(channel)
-    await rpc.register(resolve.__name__, resolve, auto_delete=True)
+    async with connection:
+        channel = await connection.channel()
+        rpc = await RPC.create(channel)
+        await rpc.register(resolve.__name__, resolve, auto_delete=True)
 
-    try:
-        await asyncio.Future()
-    finally:
-        await connection.close()
+        try:
+            await asyncio.Future()
+        finally:
+            await connection.close()
 
 
 if __name__ == "__main__":
